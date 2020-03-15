@@ -1,0 +1,32 @@
+#!/bin/sh
+
+# Sanity checks
+test -f /etc/mpd.conf || exit 0
+
+start() {
+	printf "Starting radio: "
+	cd /opt
+        screen -m -d /usr/bin/python3 radio.py
+}
+
+stop() {
+       printf "Stoping "
+       killall python3
+}
+
+case "$1" in
+	start)
+		start
+		;;
+	stop)
+		stop
+		;;
+	restart|reload)
+		stop
+		sleep 1
+		start
+		;;
+	*)
+		echo "Usage: $0 {start|stop|restart}"
+		exit 1
+esac

@@ -1,0 +1,31 @@
+#!/bin/sh
+
+# Sanity checks
+test -f /etc/mpd.conf || exit 0
+
+start() {
+	printf "Preparing mpd: "
+	mkdir /var/lib/mpd
+        /usr/sbin/alsactl --file /root/.config/asound.state restore
+}
+
+stop() {
+       printf "Stoping "
+}
+
+case "$1" in
+	start)
+		start
+		;;
+	stop)
+		stop
+		;;
+	restart|reload)
+		stop
+		sleep 1
+		start
+		;;
+	*)
+		echo "Usage: $0 {start|stop|restart}"
+		exit 1
+esac
