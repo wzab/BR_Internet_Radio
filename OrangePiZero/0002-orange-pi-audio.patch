@@ -1,0 +1,16 @@
+diff --git a/arch/arm/boot/dts/sunxi-h3-h5.dtsi b/arch/arm/boot/dts/sunxi-h3-h5.dtsi
+index 84977d4..3928989 100644
+--- a/arch/arm/boot/dts/sunxi-h3-h5.dtsi
++++ b/arch/arm/boot/dts/sunxi-h3-h5.dtsi
+@@ -634,7 +634,10 @@
+ 			dmas = <&dma 15>, <&dma 15>;
+ 			dma-names = "rx", "tx";
+ 			allwinner,codec-analog-controls = <&codec_analog>;
+-			status = "disabled";
++			allwinner,audio-routing = "Line Out", "LINEOUT",
++				"MIC1", "Mic",
++				"Mic", "MBIAS";
++			status = "okay"; 
+ 		};
+ 
+ 		uart0: serial@1c28000 {
