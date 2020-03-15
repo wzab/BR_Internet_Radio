@@ -6,7 +6,7 @@ test -f /etc/mpd.conf || exit 0
 start() {
 	printf "Preparing mpd: "
 	mkdir /var/lib/mpd
-        /sbin/alsactl --file /root/.config/asound.state restore
+        /usr/sbin/alsactl --file /root/.config/asound.state restore
 }
 
 stop() {
