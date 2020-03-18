@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+    <h2>Radios</h2>
+    <form action="" method="post" novalidate>
+     {{ state.hidden_tag() }}
+     {% for cent in state.radios %}
+        <p>
+            {{ cent.csrf_token }}
+            {{loop.index0}}: 
+            {{cent.rname.label }}
+            {{cent.rname(size=10) }},
+            {{cent.url.label }}
+            {{cent.url(size=30) }},
+            {{cent.play }},
+            {{cent.up }},
+            {{cent.down }},
+            {{cent.remove }},
+        </p>
+     {% endfor %}
+     <p>
+     {{state.new_name.label }}
+     {{state.new_name(size=10) }}
+     {{state.new_url.label }}
+     {{state.new_url(size=30) }}
+     {{state.add_first() }}{{state.add_last()}}
+        <p>{{ state.stop() }}{{ state.save() }}{{ state.jump() }}</p>
+    </form>
+{% endblock %}
+

@@ -1,0 +1,12 @@
+<html>
+    <head>
+      {% if title %}
+      <title>{{ title }} - home Internet Radio </title>
+      {% else %}
+      <title>Welcome to Internet Radio configuration</title>
+      {% endif %}
+    </head>
+    <body>
+        {% block content %}{% endblock %}
+    </body>
+</html>
