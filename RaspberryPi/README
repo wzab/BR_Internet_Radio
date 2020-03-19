@@ -1,5 +1,0 @@
-Additional steps needed after installing the system on the SD card:
-1) You must copy the rpi-enable-audio.dtbo file from dt_enable_audio to the overlays directory in the first partition of the SD card
-2) You must add the following line in the config.txt line in the first partition of the SD card:
-   dtoverlay=rpi-enable-audio
-   
