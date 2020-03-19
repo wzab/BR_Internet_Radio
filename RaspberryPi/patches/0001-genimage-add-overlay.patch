@@ -1,0 +1,17 @@
+diff --git a/board/raspberrypi/genimage-raspberrypi.cfg b/board/raspberrypi/genimage-raspberrypi.cfg
+index bd5166a..5dea2f2 100644
+--- a/board/raspberrypi/genimage-raspberrypi.cfg
++++ b/board/raspberrypi/genimage-raspberrypi.cfg
+@@ -11,8 +11,11 @@ image boot.vfat {
+       "rpi-firmware/start.elf",
+       "zImage"
+     }
++    file overlays/rpi-enable-audio.dtbo {
++       image = "../../../dt_enable_audio/rpi-enable-audio.dtbo"
++    }
+   }
+-  size = 32M
++  size = 100M
+ }
+ 
+ image sdcard.img {

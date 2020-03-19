@@ -1,0 +1,10 @@
+diff --git a/package/rpi-firmware/config.txt b/package/rpi-firmware/config.txt
+index 58cc966..2a6f547 100644
+--- a/package/rpi-firmware/config.txt
++++ b/package/rpi-firmware/config.txt
+@@ -18,3 +18,5 @@ disable_overscan=1
+ gpu_mem_256=100
+ gpu_mem_512=100
+ gpu_mem_1024=100
++
++dtoverlay=rpi-enable-audio
