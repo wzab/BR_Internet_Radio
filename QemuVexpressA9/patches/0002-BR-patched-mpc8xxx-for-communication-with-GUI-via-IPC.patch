@@ -1,0 +1,157 @@
+diff --git a/package/qemu/4.2.0/1003-WZab-qemu-patched-mpc8xxx-for-communication-with-gui.patch b/package/qemu/4.2.0/1003-WZab-qemu-patched-mpc8xxx-for-communication-with-gui.patch
+deleted file mode 100644
+index 303da11..0000000
+--- a/package/qemu/4.2.0/1003-WZab-qemu-patched-mpc8xxx-for-communication-with-gui.patch
++++ /dev/null
+@@ -1,151 +0,0 @@
+-diff --git a/hw/gpio/mpc8xxx.c b/hw/gpio/mpc8xxx.c
+-index 1d99667..96c6f0c 100644
+---- a/hw/gpio/mpc8xxx.c
+-+++ b/hw/gpio/mpc8xxx.c
+-@@ -24,17 +24,31 @@
+- #include "hw/sysbus.h"
+- #include "migration/vmstate.h"
+- #include "qemu/module.h"
+-+#include <mqueue.h>
+-+#include <stdint.h>
+-+#include <fcntl.h>
+-+#include <sys/stat.h> 
+- 
+- #define TYPE_MPC8XXX_GPIO "mpc8xxx_gpio"
+- #define MPC8XXX_GPIO(obj) OBJECT_CHECK(MPC8XXXGPIOState, (obj), TYPE_MPC8XXX_GPIO)
+- 
+-+typedef struct {
+-+      uint8_t magick[2];
+-+      uint8_t pin;
+-+      uint8_t state;
+-+} gpio_msg;
+-+
+-+#define REMOTE_GPIO_MAGICK (0x6910)
+-+
+- typedef struct MPC8XXXGPIOState {
+-     SysBusDevice parent_obj;
+- 
+-     MemoryRegion iomem;
+-     qemu_irq irq;
+-     qemu_irq out[32];
+--
+-+    mqd_t mq;
+-+    QemuThread thread;
+-+    QemuMutex dat_lock;
+-     uint32_t dir;
+-     uint32_t odr;
+-     uint32_t dat;
+-@@ -67,6 +81,7 @@ static uint64_t mpc8xxx_gpio_read(void *opaque, hwaddr offset,
+-                                   unsigned size)
+- {
+-     MPC8XXXGPIOState *s = (MPC8XXXGPIOState *)opaque;
+-+    //printf("mpc8xxx_gpio_read\n");
+- 
+-     if (size != 4) {
+-         /* All registers are 32bit */
+-@@ -96,7 +111,7 @@ static void mpc8xxx_write_data(MPC8XXXGPIOState *s, uint32_t new_data)
+-     uint32_t old_data = s->dat;
+-     uint32_t diff = old_data ^ new_data;
+-     int i;
+--
+-+    qemu_mutex_lock(&s->dat_lock);
+-     for (i = 0; i < 32; i++) {
+-         uint32_t mask = 0x80000000 >> i;
+-         if (!(diff & mask)) {
+-@@ -104,19 +119,28 @@ static void mpc8xxx_write_data(MPC8XXXGPIOState *s, uint32_t new_data)
+-         }
+- 
+-         if (s->dir & mask) {
+-+            gpio_msg msg;
+-+            msg.magick[0] = 0x69;
+-+            msg.magick[1] = 0x10;
+-+            msg.pin = i;
+-+            msg.state = (new_data & mask) ? 1 : 0;
+-             /* Output */
+-             qemu_set_irq(s->out[i], (new_data & mask) != 0);
+-+            /* Send the new value */
+-+            mq_send(s->mq,(const char *)&msg,sizeof(msg),0);
+-+            /* Update the bit in the dat field */
+-+            s->dat &= ~mask;
+-+            if ( new_data & mask ) s->dat |= mask;
+-         }
+-     }
+--
+--    s->dat = new_data;
+-+    qemu_mutex_unlock(&s->dat_lock);
+- }
+- 
+- static void mpc8xxx_gpio_write(void *opaque, hwaddr offset,
+-                         uint64_t value, unsigned size)
+- {
+-     MPC8XXXGPIOState *s = (MPC8XXXGPIOState *)opaque;
+--
+-+    //printf("mpc8xxx_gpio_write\n");
+-     if (size != 4) {
+-         /* All registers are 32bit */
+-         return;
+-@@ -165,8 +189,8 @@ static void mpc8xxx_gpio_set_irq(void * opaque, int irq, int level)
+- 
+-     mask = 0x80000000 >> irq;
+-     if ((s->dir & mask) == 0) {
+-+        qemu_mutex_lock(&s->dat_lock);
+-         uint32_t old_value = s->dat & mask;
+--
+-         s->dat &= ~mask;
+-         if (level)
+-             s->dat |= mask;
+-@@ -174,8 +198,8 @@ static void mpc8xxx_gpio_set_irq(void * opaque, int irq, int level)
+-         if (!(s->icr & irq) || (old_value && !level)) {
+-             s->ier |= mask;
+-         }
+--
+-         mpc8xxx_gpio_update(s);
+-+        qemu_mutex_unlock(&s->dat_lock);
+-     }
+- }
+- 
+-@@ -185,6 +209,33 @@ static const MemoryRegionOps mpc8xxx_gpio_ops = {
+-     .endianness = DEVICE_BIG_ENDIAN,
+- };
+- 
+-+static void * remote_gpio_thread(void * arg)
+-+{
+-+    //Here we receive the data from the queue 
+-+    const int MSG_MAX = 8192;
+-+    char buf[MSG_MAX];
+-+    gpio_msg * mg = (gpio_msg *)&buf;
+-+    mqd_t mq = mq_open("/to_qemu",O_CREAT | O_RDONLY,0x660,NULL);
+-+    if(mq<0) {
+-+        perror("I can't open mq");
+-+        exit(1);
+-+    }
+-+    while(1) {
+-+        int res = mq_receive(mq,buf,8192,NULL);
+-+        if(res<0) {
+-+            perror("I can't receive");
+-+            exit(1);
+-+        }
+-+        if(res != sizeof(gpio_msg)) continue;
+-+        if((int) mg->magick[0]*256+mg->magick[1] != REMOTE_GPIO_MAGICK) {
+-+            printf("Wrong message received");
+-+        }
+-+        if(mg->pin < 32) {
+-+            mpc8xxx_gpio_set_irq(arg,mg->pin,mg->state);
+-+        }
+-+    }
+-+}
+-+
+- static void mpc8xxx_gpio_initfn(Object *obj)
+- {
+-     DeviceState *dev = DEVICE(obj);
+-@@ -197,6 +248,10 @@ static void mpc8xxx_gpio_initfn(Object *obj)
+-     sysbus_init_irq(sbd, &s->irq);
+-     qdev_init_gpio_in(dev, mpc8xxx_gpio_set_irq, 32);
+-     qdev_init_gpio_out(dev, s->out, 32);
+-+    qemu_mutex_init(&s->dat_lock);
+-+    s->mq = mq_open("/from_qemu",O_CREAT | O_WRONLY,0x660,NULL);
+-+    qemu_thread_create(&s->thread, "remote_gpio", remote_gpio_thread, s,
+-+                       QEMU_THREAD_JOINABLE);
+- }
+- 
+- static void mpc8xxx_gpio_class_init(ObjectClass *klass, void *data)
