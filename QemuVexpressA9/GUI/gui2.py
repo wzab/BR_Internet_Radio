@@ -17,6 +17,36 @@ import posix_ipc as pipc
 mq_to_qemu = pipc.MessageQueue("/to_qemu",flags=pipc.O_CREAT, read=False, write=True)
 mq_from_qemu = pipc.MessageQueue("/from_qemu",flags=pipc.O_CREAT, read=True, write=False)
 
+#Global variables (will be filled when bulding the GUI)
+class glb:
+    pass
+
+import random
+import time
+def generate_bouncing():
+    if glb.bouncing_active.get_active():
+        # Generate the odd number of transient times (3,5 or 7) between 0
+        # and the duration time of the bouncing
+        ntr = random.choice((3,5,7))
+        duration = glb.bouncing_duration.get_value()
+        trs = [random.randint(0,duration) for i in range(0,ntr)]
+        trs.sort()
+        return trs
+    else:
+        return (0,)
+
+def send_bounced_change(nof_pin,state):
+    if not glb.bouncing_active.get_active():
+        send_change(nof_pin,state)
+    else:
+        trs = generate_bouncing()
+        last = 0
+        for trans in trs:
+            time.sleep(0.001*(trans-last))
+            last = trans
+            send_change(nof_pin,state)
+            state = 1 - state
+
 
 def send_change(nof_pin, state):
     s=struct.pack(">HBB",pipc_magick,nof_pin,state)
@@ -32,7 +62,7 @@ def recv_change(msg):
     else:
         s = 1
     GLib.idle_add(MyControls[pin].change_state,s)
-    
+
 def receiver():
     while True:
         msg = mq_from_qemu.receive()
@@ -129,25 +159,41 @@ class SwitchBoardWindow(Gtk.Window):
             MyControls[i] = led
             hbox.pack_start(led,True,True,0)            
         mainvbox.pack_start(hbox,True,True,0)
+        #Add the configuration controlls
+        hbox = Gtk.Box(spacing=6)
         #Add the reconnect button
         button = Gtk.Button(label="Reconnect")
         button.connect("clicked", Reconnect)
-        mainvbox.pack_start(button,True,True,0)
-            
+        hbox.pack_start(button,True,True,0)
+        #Add the contact bouncing settings
+        button=Gtk.CheckButton(label="Bouncing")
+        button.set_active(1)
+        glb.bouncing_active = button
+        hbox.pack_start(button,True,True,0)
+        label=Gtk.Label(label="duration [ms]")
+        hbox.pack_start(label,True,True,0)
+        spinner=Gtk.SpinButton()
+        spinner.set_range(0,300)
+        spinner.set_value(200)
+        spinner.set_increments(1,10)
+        glb.bouncing_duration=spinner
+        hbox.pack_start(spinner,True,True,0)
+        mainvbox.pack_start(hbox,True,True,0)
+        
     def on_switch_activated(self, switch, gparam):
         if switch.get_active():
             state = 1
         else:
             state = 0
         #MyLeds[switch.number].change_state(state)
-        send_change(switch.number,state)
+        send_bounced_change(switch.number,state)
         self.state = state
         print("Switch #"+str(switch.number)+" was turned", state)
         return True
 
     def on_button_clicked(self, button,gparam, state):
         print("pressed!")
-        send_change(button.number,state)
+        send_bounced_change(button.number,state)
         self.state = state
         print("Button #"+str(button.number)+" was turned", state)
         return True
