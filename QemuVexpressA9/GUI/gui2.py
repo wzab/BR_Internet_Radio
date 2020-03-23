@@ -31,7 +31,7 @@ def recv_change(msg):
         s = 0
     else:
         s = 1
-    GLib.idle_add(MyLeds[pin-24].change_state,s)
+    GLib.idle_add(MyControls[pin].change_state,s)
     
 def receiver():
     while True:
@@ -39,16 +39,25 @@ def receiver():
         recv_change(msg[0])
         
 class MySwitch(Gtk.Switch):
+    dir = 0 #Input
     def __init__(self,number):
         super().__init__()
         self.number = number
+        self.state = 0
+    def change_state(self,state):
+        pass
 
 class MyButton(Gtk.Button):
+    dir = 0 #Input
     def __init__(self,number):
         super().__init__(label=str(number))
         self.number = number
+        self.state = 1
+    def change_state(self,state):
+        pass
         
 class MyLed(Gtk.Label):
+    dir = 1 # Output
     color = Gdk.color_parse('gray')
     rgba0 = Gdk.RGBA.from_color(color)
     color = Gdk.color_parse('green')
@@ -59,14 +68,24 @@ class MyLed(Gtk.Label):
         super().__init__( label=str(number))
         self.number = number
         self.change_state(0)
-    
+        self.state = 0
     def change_state(self,state):
+        self.state = state
         if state == 1:
             self.override_background_color(0,self.rgba1)
         else:
             self.override_background_color(0,self.rgba0)
     
-MyLeds = []
+MyControls = {}
+
+def Reconnect(button):
+    # First send state of all inputs
+    for i in MyControls:
+        ctrl = MyControls[i]
+        if ctrl.dir == 0:
+           send_change(ctrl.number,ctrl.state)
+    # Then request sending all outputs
+    send_change(255,0)
         
 class SwitchBoardWindow(Gtk.Window):
 
@@ -86,6 +105,7 @@ class SwitchBoardWindow(Gtk.Window):
             switch = MySwitch(i)
             switch.connect("notify::active", self.on_switch_activated)
             switch.set_active(False)
+            MyControls[i] = switch
             vbox.pack_start(switch,True,True,0)            
             hbox.pack_start(vbox, True, True, 0)
         mainvbox.pack_start(hbox,True,True,0)
@@ -97,6 +117,7 @@ class SwitchBoardWindow(Gtk.Window):
             button = MyButton(i)
             button.connect("button-press-event", self.on_button_clicked,0)
             button.connect("button-release-event", self.on_button_clicked,1)
+            MyControls[i] = button
             hbox.pack_start(button,True,True,0)            
         mainvbox.pack_start(hbox,True,True,0)
         #Create the LEDS
@@ -105,23 +126,29 @@ class SwitchBoardWindow(Gtk.Window):
         hbox = Gtk.Box(spacing=6)
         for i in range(24,32):
             led = MyLed(i)
-            MyLeds.append(led)
+            MyControls[i] = led
             hbox.pack_start(led,True,True,0)            
         mainvbox.pack_start(hbox,True,True,0)
+        #Add the reconnect button
+        button = Gtk.Button(label="Reconnect")
+        button.connect("clicked", Reconnect)
+        mainvbox.pack_start(button,True,True,0)
             
     def on_switch_activated(self, switch, gparam):
         if switch.get_active():
-            state = 0
-        else:
             state = 1
+        else:
+            state = 0
         #MyLeds[switch.number].change_state(state)
         send_change(switch.number,state)
+        self.state = state
         print("Switch #"+str(switch.number)+" was turned", state)
         return True
 
     def on_button_clicked(self, button,gparam, state):
         print("pressed!")
         send_change(button.number,state)
+        self.state = state
         print("Button #"+str(button.number)+" was turned", state)
         return True
 
