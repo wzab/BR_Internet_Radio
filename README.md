@@ -5,6 +5,12 @@ Please note, that this repository contains also sources taken from python-mpd2 p
 It has been developed for Orange Pi Zero board, but testing was also performed in
 virtual machines (Virt 64 and Vexpress-A9) emulated in QEMU.
 
+The version developed in the "gpio" branch offers a possibility to connect one 32-bit GPIO port of the emulated
+Vexpress-A9 machine to the GUI simulating 12 switches, 12 buttons and 8 diodes.
+
+![test](  docs/images/GUIv1.png )
+
+
 ## Building
 To build the Linux image, enter the appropriate directory and run the "build.sh" script.
 It should automatically download the buildroot, unpack it, configure and build the image.
