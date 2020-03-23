@@ -1,3 +1,72 @@
+diff --git a/linux/1001-WZab-add-mpc8xxx-for-vexpress-dts1.patch b/linux/1001-WZab-add-mpc8xxx-for-vexpress-dts1.patch
+new file mode 100644
+index 0000000..1858656
+--- /dev/null
++++ b/linux/1001-WZab-add-mpc8xxx-for-vexpress-dts1.patch
+@@ -0,0 +1,36 @@
++diff --git a/arch/arm/boot/dts/vexpress-v2m.dtsi b/arch/arm/boot/dts/vexpress-v2m.dtsi
++index 4db42f6..eb07d4d 100644
++--- a/arch/arm/boot/dts/vexpress-v2m.dtsi
+++++ b/arch/arm/boot/dts/vexpress-v2m.dtsi
++@@ -186,7 +186,7 @@
++ 					clocks = <&v2m_oscclk2>, <&smbclk>;
++ 					clock-names = "uartclk", "apb_pclk";
++ 				};
++-
+++				
++ 				v2m_serial3: uart@c000 {
++ 					compatible = "arm,pl011", "arm,primecell";
++ 					reg = <0x0c000 0x1000>;
++@@ -194,7 +194,14 @@
++ 					clocks = <&v2m_oscclk2>, <&smbclk>;
++ 					clock-names = "uartclk", "apb_pclk";
++ 				};
++-
+++				
+++				v2m_gpiowz: gpio@8000 {
+++					compatible = "fsl,qoriq-gpio";
+++					reg = <0x08000 0x1000>;
+++					interrupts = <8>;
+++					clocks = <&smbclk>;
+++					clock-names = "apb_pclk";
+++				};
++ 				wdt@f000 {
++ 					compatible = "arm,sp805", "arm,primecell";
++ 					reg = <0x0f000 0x1000>;
++@@ -449,4 +456,4 @@
++ 			};
++ 		};
++ 	};
++-};
++\ No newline at end of file
+++};
+diff --git a/linux/1002-WZab-add-mpc8xxx-for-vexpress-dts2.patch b/linux/1002-WZab-add-mpc8xxx-for-vexpress-dts2.patch
+new file mode 100644
+index 0000000..e000499
+--- /dev/null
++++ b/linux/1002-WZab-add-mpc8xxx-for-vexpress-dts2.patch
+@@ -0,0 +1,21 @@
++diff --git a/arch/arm/boot/dts/vexpress-v2m-rs1.dtsi b/arch/arm/boot/dts/vexpress-v2m-rs1.dtsi
++index 4488c8f..2947674 100644
++--- a/arch/arm/boot/dts/vexpress-v2m-rs1.dtsi
+++++ b/arch/arm/boot/dts/vexpress-v2m-rs1.dtsi
++@@ -194,7 +194,15 @@
++ 					clocks = <&v2m_oscclk2>, <&smbclk>;
++ 					clock-names = "uartclk", "apb_pclk";
++ 				};
++-
+++				
+++				v2m_gpiowz: gpio@80000 {
+++					compatible = "fsl,8610-gpio";
+++					reg = <0x080000 0x1000>;
+++					interrupts = <8>;
+++					clocks = <&smbclk>;
+++					clock-names = "apb_pclk";
+++				};
+++				
++ 				wdt@f0000 {
++ 					compatible = "arm,sp805", "arm,primecell";
++ 					reg = <0x0f0000 0x1000>;
 diff --git a/package/qemu/4.2.0/1001-WZab-qemu-add-mpc8xxx-for-vexpress1.patch b/package/qemu/4.2.0/1001-WZab-qemu-add-mpc8xxx-for-vexpress1.patch
 new file mode 100644
 index 0000000..4caef72
