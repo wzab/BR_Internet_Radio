@@ -49,3 +49,15 @@ index 0000000..d1934b3
 +     ;;
 + 
 +     sdl)
+diff --git a/package/qemu/qemu.mk b/package/qemu/qemu.mk
+index b2249ed..8f1f14a 100644
+--- a/package/qemu/qemu.mk
++++ b/package/qemu/qemu.mk
+@@ -296,6 +296,7 @@ define HOST_QEMU_CONFIGURE_CMDS
+ 	cd $(@D); $(HOST_CONFIGURE_OPTS) CPP="$(HOSTCC) -E" \
+ 		./configure \
+ 		--target-list="$(HOST_QEMU_TARGETS)" \
++                --audio-drv-list=alsa,pa,oss \
+ 		--prefix="$(HOST_DIR)" \
+ 		--interp-prefix=$(STAGING_DIR) \
+ 		--cc="$(HOSTCC)" \
