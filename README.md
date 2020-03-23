@@ -1,6 +1,6 @@
 # BR_Internet_Radio
 This is a simple Internet radio built using mpd/mpc and Flask with Buildroot.
-Please note, that this repository contains also sources taken from python-mpd2 project ( https://github.com/lepture/flask-wtf ) and flask-wtf project ( https://github.com/lepture/flask-wtf ).
+Please note, that this repository contains also sources taken from python-mpd2 project ( https://github.com/Mic92/python-mpd2 ) and flask-wtf project ( https://github.com/lepture/flask-wtf ).
 
 It has been developed for Orange Pi Zero board, but testing was also performed in
 virtual machines (Virt 64 and Vexpress-A9) emulated in QEMU.
