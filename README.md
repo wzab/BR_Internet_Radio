@@ -10,6 +10,7 @@ Vexpress-A9 machine to the GUI simulating 12 switches, 12 buttons and 8 diodes.
 
 ![test](  docs/images/GUIv1.png )
 
+This allows you to add a control interface to the Internet radio. The GUI is even capable to simulate the bouncing effect in buttons and switches, do you can test if your firmware handles it properly before moving to the real hardware.
 
 ## Building
 To build the Linux image, enter the appropriate directory and run the "build.sh" script.
