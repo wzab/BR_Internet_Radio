@@ -253,7 +253,7 @@ index 0000000..ccb5997
 ++    const int MSG_MAX = 8192;
 ++    char buf[MSG_MAX];
 ++    gpio_msg * mg = (gpio_msg *)&buf;
-++    mqd_t mq = mq_open("/to_qemu",O_CREAT | O_RDONLY,0x600,NULL);
+++    mqd_t mq = mq_open("/to_qemu",O_CREAT | O_RDONLY,S_IRUSR | S_IWUSR,NULL);
 ++    if(mq<0) {
 ++        perror("I can't open mq");
 ++        exit(1);
@@ -299,7 +299,7 @@ index 0000000..ccb5997
 +     qdev_init_gpio_in(dev, mpc8xxx_gpio_set_irq, 32);
 +     qdev_init_gpio_out(dev, s->out, 32);
 ++    qemu_mutex_init(&s->dat_lock);
-++    s->mq = mq_open("/from_qemu",O_CREAT | O_WRONLY,0x600,NULL);
+++    s->mq = mq_open("/from_qemu",O_CREAT | O_WRONLY,S_IRUSR | S_IWUSR,NULL);
 ++    qemu_thread_create(&s->thread, "remote_gpio", remote_gpio_thread, s,
 ++                       QEMU_THREAD_JOINABLE);
 + }
