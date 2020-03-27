@@ -11,6 +11,7 @@ Vexpress-A9 machine to the GUI simulating 12 switches, 12 buttons and 8 diodes.
 ![test](  docs/images/GUIv1.png )
 
 This allows you to add a control interface to the Internet radio. The GUI is even capable to simulate the bouncing effect in buttons and switches, do you can test if your firmware handles it properly before moving to the real hardware.
+Please be aware of one problem. Due to the fact how the original mpc8xxx model is implemented, the first writing to the emulated output does not trigger sending a message to the GUI. So at the begining you must initialize the outputs twice. Afterwards they work correctly. Unfortunately, I was not able to fix it in an easy way. I'f you know how to fix it, please do that and send me the merge request.
 
 ## Building
 To build the Linux image, enter the appropriate directory and run the "build.sh" script.
