@@ -16,6 +16,8 @@ This allows you to add a control interface to the Internet radio. The GUI is eve
 To build the Linux image, enter the appropriate directory and run the "build.sh" script.
 It should automatically download the buildroot, unpack it, configure and build the image.
 
+Compilation of the "gpio" branch requires that you have developer packages for alsa library (`libasound2-dev` for Debian-based distributions, `alsa-lib-devel` for RedHat-based distributions etc.)
+
 ## Running
 In case of the real hardware (currently only Orange Pi Zero), you should transfer
 the compiled files to the SD card. You may simply write the generated sdcard.img
