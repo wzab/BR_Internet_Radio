@@ -67,18 +67,11 @@ app.config['SECRET_KEY']='hard to guess string'
 def utility_processor():
     def goto_url(target=""):
       print("I\'m supposed to go to: "+target)
-    def goto_ipcams():
-      print("I\'m supposed to go to: ipcams")
+    return dict(goto_url=goto_url)
 
-    def goto_tvicams():
-      print("I\'m supposed to go to: TVIcams")
-
-    def goto_hdmicams():
-      print("I\'m supposed to go to: HDMIcams")
-    return dict(goto_url=goto_url,goto_ipcams=goto_ipcams,goto_tvicams=goto_tvicams,goto_hdmicams=goto_hdmicams)
-
-# Radio services
-
+class CSet:
+    pass
+    
 class Radio(FlaskForm):
     rname = StringField('')
     url = StringField('')
@@ -107,6 +100,18 @@ class RadioList(FlaskForm):
     save = SubmitField('Save')
     radios = FieldList(FormField(RadioItem),min_entries=0)
 
+@app.route("/status",methods=['GET'])
+def mpc_status():
+    state=CSet()
+    with mpc_lock:
+       mpc.connect("localhost",6600)
+       state.cur_song=mpc.currentsong().get('name','')
+       status=mpc.status()
+       mpc.play()
+       mpc.close()
+       mpc.disconnect()
+       state.vol=status['volume']
+    return render_template('status.html',title='Status',state=state)
 
 @app.route("/",methods=['GET','POST'])
 def list_radios():

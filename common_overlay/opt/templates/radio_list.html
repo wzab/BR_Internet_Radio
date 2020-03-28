@@ -1,18 +1,24 @@
 {% extends "base.html" %}
 {% block content %}
+<link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/style1.css') }}">
     <h2>Radios</h2>
+    <div class="h_iframe">
+    <iframe src="status" style="width=100%;border:none;" allowfullscreen></iframe>
+    </div>
+    <div>
     <form action="" method="post" novalidate>
      {{ state.hidden_tag() }}
      {% for cent in state.radios %}
         <p>
             {{ cent.csrf_token }}
             {{loop.index0}}: 
-            {{cent.rname(size=20)}}
+            {{cent.rname(readonly=true)}}
             {{cent.play }}
         </p>
      {% endfor %}
      <p>
         <p>{{ state.stop() }}{{ state.save() }}{{ state.jump() }}</p>
     </form>
+    </div>
 {% endblock %}
 
