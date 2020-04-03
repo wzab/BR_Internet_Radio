@@ -35,4 +35,5 @@ index 0000000..5bb7ea3
 +void mpc83xx_gpio_init_r(void);
 +#endif	/* DM_GPIO */
 +
-+#endif	/* MPC83XX_GPIO_H_ */+/* SPDX-License-Identifier: GPL-2.0+ */
++#endif	/* MPC83XX_GPIO_H_ */
++/* SPDX-License-Identifier: GPL-2.0+ */
