@@ -1,0 +1,5 @@
+#!/bin/bash
+(
+  cd buildroot-2020.02
+  output/host/bin/qemu-system-arm -M vexpress-a9 -nographic -smp 1 -dtb output/images/vexpress-v2p-ca9.dtb -kernel output/images/zImage -append "rootwait root=/dev/vda console=ttyAMA0" -netdev user,id=eth0,hostfwd=tcp::2222-:22 -device virtio-net-device,netdev=eth0 -drive file=output/images/rootfs.ext2,if=none,format=raw,id=hd0 -device virtio-blk-device,drive=hd0
+)
