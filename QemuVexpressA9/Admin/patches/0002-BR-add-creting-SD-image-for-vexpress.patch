@@ -3,7 +3,7 @@ new file mode 100644
 index 0000000..952586b
 --- /dev/null
 +++ b/board/qemu/arm-vexpress/genimage-arm-vexpress.cfg
-@@ -0,0 +1,29 @@
+@@ -0,0 +1,30 @@
 +image boot.vfat {
 +  vfat {
 +    files = {
@@ -26,6 +26,7 @@ index 0000000..952586b
 +    partition-type = 0xC
 +    bootable = "true"
 +    image = "boot.vfat"
++    offset = 1M
 +  }
 +
 +  partition rootfs {

@@ -1,1 +1,0 @@
-mkimage -T script -C none -n 'Start script' -d boot.txt boot.scr

@@ -1,5 +1,5 @@
 #Below you may add additional options, like: root=/dev/mmcblk0p2 rootwait
-setenv bootargs "console=ttyAMA0 rootwait root=/dev/mmcblk0p2"
+setenv bootargs "console=ttyAMA0 root=/dev/mmcblk0p2 rootwait"
 setenv fdt_addr_r $ramdisk_addr_r
 setenv kernel_addr_r 0x61000000
 setenv fdt_addr_r 0x80008000
