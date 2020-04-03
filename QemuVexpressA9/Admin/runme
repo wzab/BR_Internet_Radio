@@ -1,0 +1,7 @@
+#!/bin/bash
+(
+  cd buildroot-2020.02
+  output/host/bin/qemu-system-arm -nographic -M vexpress-a9  -cpu cortex-a9 -m 1G -dtb output/images/vexpress-v2p-ca9.dtb -kernel output/images/u-boot -smp 1 -net nic,model=lan9118 -net user  -sd output/images/sdcard.img 
+)
+
+# 

@@ -1,0 +1,12 @@
+diff --git a/arch/arm/dts/vexpress-v2p-ca9.dts b/arch/arm/dts/vexpress-v2p-ca9.dts
+index d796efa..51e91b6 100644
+--- a/arch/arm/dts/vexpress-v2p-ca9.dts
++++ b/arch/arm/dts/vexpress-v2p-ca9.dts
+@@ -29,6 +29,7 @@
+ 		serial3 = &v2m_serial3;
+ 		i2c0 = &v2m_i2c_dvi;
+ 		i2c1 = &v2m_i2c_pcie;
++		gpio1 = &v2m_gpiowz;
+ 	};
+ 
+ 	cpus {

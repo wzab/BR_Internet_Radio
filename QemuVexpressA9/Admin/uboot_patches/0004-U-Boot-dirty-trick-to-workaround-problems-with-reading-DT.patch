@@ -1,0 +1,20 @@
+diff --git a/drivers/gpio/mpc8xxx_gpio.c b/drivers/gpio/mpc8xxx_gpio.c
+index c273c2c..687f48d 100644
+--- a/drivers/gpio/mpc8xxx_gpio.c
++++ b/drivers/gpio/mpc8xxx_gpio.c
+@@ -182,10 +182,11 @@ static int mpc8xxx_gpio_ofdata_to_platdata(struct udevice *dev)
+ 
+ 	dev_read_u32_array(dev, "reg", reg, 2);
+ 	addr = dev_translate_address(dev, reg);
+-
+-	plat->addr = addr;
+-	plat->size = reg[1];
+-	plat->ngpios = dev_read_u32_default(dev, "ngpios", 32);
++        //Dirty trick enforcing setting values defined in DT
++        //For unknown reason the driver is not able to read correct values.
++	plat->addr = 0x10008000;
++	plat->size = 0x1000;
++	plat->ngpios = 32; //dev_read_u32_default(dev, "ngpios", 32);
+ 
+ 	return 0;
+ }

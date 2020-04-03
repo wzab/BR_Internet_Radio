@@ -1,0 +1,19 @@
+diff --git a/arch/arm/dts/vexpress-v2m.dtsi b/arch/arm/dts/vexpress-v2m.dtsi
+index 798c97a..39c2570 100644
+--- a/arch/arm/dts/vexpress-v2m.dtsi
++++ b/arch/arm/dts/vexpress-v2m.dtsi
+@@ -157,6 +157,14 @@
+ 					clocks = <&v2m_clk24mhz>, <&smbclk>;
+ 					clock-names = "KMIREFCLK", "apb_pclk";
+ 				};
++
++				v2m_gpiowz: gpio@8000 {
++					compatible = "fsl,qoriq-gpio","co,kolwiek";
++					reg = <0x08000 0x1000>;
++					interrupts = <8>;
++					clocks = <&smbclk>;
++					clock-names = "apb_pclk";
++                                };
+ 
+ 				v2m_serial0: uart@9000 {
+ 					compatible = "arm,pl011", "arm,primecell";
