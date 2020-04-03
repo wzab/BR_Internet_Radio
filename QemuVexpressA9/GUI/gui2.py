@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python
 
 # Sources:
 # https://lazka.github.io/pgi-docs
