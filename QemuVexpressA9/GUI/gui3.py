@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 
 # Sources:
 # https://lazka.github.io/pgi-docs
@@ -71,7 +71,7 @@ def receiver():
 class MySwitch(Gtk.Switch):
     dir = 0 #Input
     def __init__(self,number):
-        super(MySwitch, self).__init__()
+        super().__init__()
         self.number = number
         self.state = 0
     def change_state(self,state):
@@ -80,7 +80,7 @@ class MySwitch(Gtk.Switch):
 class MyButton(Gtk.Button):
     dir = 0 #Input
     def __init__(self,number):
-        super(MyButton, self).__init__(label=str(number))
+        super().__init__(label=str(number))
         self.number = number
         self.state = 1
     def change_state(self,state):
@@ -95,7 +95,7 @@ class MyLed(Gtk.Label):
     del color
     
     def __init__(self, number):
-        super(MyLed, self).__init__( label=str(number))
+        super().__init__( label=str(number))
         self.number = number
         self.change_state(0)
         self.state = 0
