@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python
 
 # Sources:
 # https://lazka.github.io/pgi-docs
@@ -113,6 +113,7 @@ def Reconnect(button):
     for i in MyControls:
         ctrl = MyControls[i]
         if ctrl.dir == 0:
+           send_change(ctrl.number,1-ctrl.state)
            send_change(ctrl.number,ctrl.state)
     # Then request sending all outputs
     send_change(255,0)
