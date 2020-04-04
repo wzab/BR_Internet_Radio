@@ -1,0 +1,67 @@
+What can we do with the desin "gpio_uboot" from repository https://github.com/wzab/BR_Internet_Radio?
+
+To get the design, please do:
+
+git clone https://github.com/wzab/BR_Internet_Radio
+cd BR_Internet_Radio
+gti checkout gpio_uboot
+
+After the design is unpacked, in the directory "QemuVexpressA9" we find two subdirectories:
+"Utility" and "Admin".
+They may be used as templates to create your own designs.
+Buildroot in both directories is patched to work with the emulated GPIO
+(Of course you must use it with its own, modified QEMU. Otherwise the messages won't
+be received by QEMU and the GUI will finally freeze due to overflown message queues.)
+
+The BR in "Utility" is configured to generate a Linux working with the real root
+filesystem in ext4 format. To test it without any modification, you may simply
+run the "./build.sh" script in the Utility directory.
+After successful build, you may start the GUI, by running "gui2.py" (with Python 2)
+or "gui3.py" (with Python 3) in the GUI subdirectory.
+In another console you may the start the "runme" script in the "Utility" directory.
+You should get your Linux working in the emulated virtual machine.
+As previously you may use the "button13_read_irq.py", "led31_blink.py", 
+"switch0_read_irq.py" or "irqtest.sh" to test interaction with GUI.
+Of course you may also extend the Utility system with your own application.
+What's important, you may test it here, independently, by running the "runme" script.
+
+The important fact is that after modifications. you do not need start from the begining,
+using the "./build.sh" script. You may simply rebuild your design by running "make"
+(with the appropriate options, "make clean all" in the worst case)
+in the Utility/buildroot-2020.02 directory.
+
+However, now our main goal is to add our "Utility" system to another one, equipped
+with the bootloader. That's the "Admin" system.
+You may copy the generated "Utility" kernel and root filesystem image to the "Admin"
+by running the "copy_to_admin.sh" script (please analyze it).
+
+After the generated files are copied, we may start building the Admin system.
+The first step is to decide if the U-Boot should by default load the administrative
+system or the utility one. To do that please enter the Admin/user_img directory,
+and run either "boot_user.sh" or "boot_admin.sh". Please analyse what those scripts are
+doing, and both "txt" files that are the sources of the generated boot.scr U-Boot script.
+One of your tasks will be creating the combined U-Boot script, that enables selecting
+one of those system
+
+Now you can build the Admin system and create the emulated SD card containing the bootloader
+and both systems. Just run build.sh script in the Admin directory.
+
+After successfull build, you my start your simulated system.
+If you have previously started the GUI from the Utility/GUI, you may still use it.
+It is the same as the available in the Admin/GUI.
+Of course, the simulation is started by running the "runme" script in the "Admin" directory.
+You will see, that U-Boot starts first. If you press any key during the first 2 seconds,
+the autoboot process will be interrupted (just like in our normal lab), and you'll 
+enter the U-Boot command line. You may type "help" to see the available commands.
+In particular please test the "gpio" command that allows you interact with GPIO
+inputs and outputs. Please, be aware of limitations mentioned in the description 
+of exercise 3.
+
+If you do not press any key, the U-Boot will execute commands from the boot.scr script,
+and bbot the previously selected system.
+
+With those templates you may start to prepare your own Admin system, the Utility system
+and the U-Boot script.
+Good luck!
+
+
