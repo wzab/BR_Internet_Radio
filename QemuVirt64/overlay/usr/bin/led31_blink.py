@@ -1,7 +1,7 @@
 #!/usr/bin/python
 import gpiod
 import time
-chip = gpiod.Chip('10008000.gpio')
+chip = gpiod.Chip('gpiochip0')
 led1 = chip.get_line(31)
 led1.request(consumer="its_me", type=gpiod.LINE_REQ_DIR_OUT)
 while True:
