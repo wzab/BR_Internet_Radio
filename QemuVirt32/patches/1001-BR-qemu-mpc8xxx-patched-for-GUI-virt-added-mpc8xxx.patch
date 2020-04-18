@@ -1,0 +1,249 @@
+diff --git a/package/qemu/4.2.0/1001-qemu-mpc8xxx-patched-for-GUI-virt-added-mpc8xxx.patch b/package/qemu/4.2.0/1001-qemu-mpc8xxx-patched-for-GUI-virt-added-mpc8xxx.patch
+new file mode 100644
+index 0000000..5253a29
+--- /dev/null
++++ b/package/qemu/4.2.0/1001-qemu-mpc8xxx-patched-for-GUI-virt-added-mpc8xxx.patch
+@@ -0,0 +1,243 @@
++diff --git a/hw/arm/virt.c b/hw/arm/virt.c
++index d4bedc26..2afebd85 100644
++--- a/hw/arm/virt.c
+++++ b/hw/arm/virt.c
++@@ -136,6 +136,7 @@ static const MemMapEntry base_memmap[] = {
++     /* This redistributor space allows up to 2*64kB*123 CPUs */
++     [VIRT_GIC_REDIST] =         { 0x080A0000, 0x00F60000 },
++     [VIRT_UART] =               { 0x09000000, 0x00001000 },
+++    [VIRT_MPC8XXX] =            { 0x09008000, 0x00001000 }, /* Added by WZab for GUI+GPIO */
++     [VIRT_RTC] =                { 0x09010000, 0x00001000 },
++     [VIRT_FW_CFG] =             { 0x09020000, 0x00000018 },
++     [VIRT_GPIO] =               { 0x09030000, 0x00001000 },
++@@ -179,6 +180,7 @@ static const int a15irqmap[] = {
++     [VIRT_GPIO] = 7,
++     [VIRT_SECURE_UART] = 8,
++     [VIRT_ACPI_GED] = 9,
+++    [VIRT_MPC8XXX] = 10, /* Added by WZab for GUI+GPIO */
++     [VIRT_MMIO] = 16, /* ...to 16 + NUM_VIRTIO_TRANSPORTS - 1 */
++     [VIRT_GIC_V2M] = 48, /* ...to 48 + NUM_GICV2M_SPIS - 1 */
++     [VIRT_SMMU] = 74,    /* ...to 74 + NUM_SMMU_IRQS - 1 */
++@@ -531,6 +533,30 @@ static void fdt_add_pmu_nodes(const VirtMachineState *vms)
++     }
++ }
++ 
+++static void create_mpc8xxx(VirtMachineState *vms, qemu_irq *pic)
+++{  
+++    char *nodename;
+++    hwaddr base = vms->memmap[VIRT_MPC8XXX].base;
+++    hwaddr size = vms->memmap[VIRT_MPC8XXX].size;
+++    int irq = vms->irqmap[VIRT_MPC8XXX];
+++    const char compat[] = "fsl,qoriq-gpio";
+++
+++    sysbus_create_simple("mpc8xxx_gpio", base, pic[irq]);
+++
+++    nodename = g_strdup_printf("/gpio@%" PRIx64, base);
+++    qemu_fdt_add_subnode(vms->fdt, nodename);
+++    qemu_fdt_setprop(vms->fdt, nodename, "compatible", compat, sizeof(compat));
+++    qemu_fdt_setprop_sized_cells(vms->fdt, nodename, "reg",
+++                                 2, base, 2, size);
+++    qemu_fdt_setprop_cells(vms->fdt, nodename, "interrupts",
+++                           GIC_FDT_IRQ_TYPE_SPI, irq,
+++                           GIC_FDT_IRQ_FLAGS_LEVEL_HI);
+++    qemu_fdt_setprop_cell(vms->fdt, nodename, "clocks", vms->clock_phandle);
+++    qemu_fdt_setprop_string(vms->fdt, nodename, "clock-names", "apb_pclk");
+++    qemu_fdt_setprop_string(vms->fdt, nodename, "status", "okay");
+++    g_free(nodename);
+++}
+++
++ static inline DeviceState *create_acpi_ged(VirtMachineState *vms, qemu_irq *pic)
++ {
++     DeviceState *dev;
++@@ -1735,6 +1760,7 @@ static void machvirt_init(MachineState *machine)
++         create_gpio(vms, pic);
++     }
++ 
+++     create_mpc8xxx(vms, pic);
++      /* connect powerdown request */
++      vms->powerdown_notifier.notify = virt_powerdown_req;
++      qemu_register_powerdown_notifier(&vms->powerdown_notifier);
++diff --git a/hw/gpio/Makefile.objs b/hw/gpio/Makefile.objs
++index d305b3b2..c0ec610b 100644
++--- a/hw/gpio/Makefile.objs
+++++ b/hw/gpio/Makefile.objs
++@@ -3,6 +3,7 @@ common-obj-$(CONFIG_PL061) += pl061.o
++ common-obj-$(CONFIG_PUV3) += puv3_gpio.o
++ common-obj-$(CONFIG_ZAURUS) += zaurus.o
++ common-obj-$(CONFIG_E500) += mpc8xxx.o
+++common-obj-$(CONFIG_ARM_VIRT) += mpc8xxx.o
++ common-obj-$(CONFIG_GPIO_KEY) += gpio_key.o
++ 
++ obj-$(CONFIG_OMAP) += omap_gpio.o
++diff --git a/hw/gpio/mpc8xxx.c b/hw/gpio/mpc8xxx.c
++index 1d996670..e608694e 100644
++--- a/hw/gpio/mpc8xxx.c
+++++ b/hw/gpio/mpc8xxx.c
++@@ -5,6 +5,9 @@
++  *
++  * Author: Alexander Graf, <agraf@suse.de>
++  *
+++ * The code was modified in 03.2020 by Wojciech M. Zabolotny <wzab01@gmail.com>
+++ * To enable communication with GUI on host machine via POSIX IPC
+++ * 
++  * This library is free software; you can redistribute it and/or
++  * modify it under the terms of the GNU Lesser General Public
++  * License as published by the Free Software Foundation; either
++@@ -22,12 +25,24 @@
++ #include "qemu/osdep.h"
++ #include "hw/irq.h"
++ #include "hw/sysbus.h"
+++#include "qemu/main-loop.h" /* iothread mutex */
++ #include "migration/vmstate.h"
++ #include "qemu/module.h"
+++#include <mqueue.h>
+++#include <stdint.h>
+++#include <fcntl.h>
+++#include <sys/stat.h> 
++ 
++ #define TYPE_MPC8XXX_GPIO "mpc8xxx_gpio"
++ #define MPC8XXX_GPIO(obj) OBJECT_CHECK(MPC8XXXGPIOState, (obj), TYPE_MPC8XXX_GPIO)
++ 
+++typedef struct {
+++      uint8_t magick[2];
+++      uint8_t pin;
+++      uint8_t state;
+++} gpio_msg;
+++
+++#define REMOTE_GPIO_MAGICK (0x6910)
++ typedef struct MPC8XXXGPIOState {
++     SysBusDevice parent_obj;
++ 
++@@ -35,6 +50,9 @@ typedef struct MPC8XXXGPIOState {
++     qemu_irq irq;
++     qemu_irq out[32];
++ 
+++    mqd_t mq;
+++    QemuThread thread;
+++    QemuMutex dat_lock;
++     uint32_t dir;
++     uint32_t odr;
++     uint32_t dat;
++@@ -97,6 +115,7 @@ static void mpc8xxx_write_data(MPC8XXXGPIOState *s, uint32_t new_data)
++     uint32_t diff = old_data ^ new_data;
++     int i;
++ 
+++    qemu_mutex_lock(&s->dat_lock);
++     for (i = 0; i < 32; i++) {
++         uint32_t mask = 0x80000000 >> i;
++         if (!(diff & mask)) {
++@@ -104,12 +123,22 @@ static void mpc8xxx_write_data(MPC8XXXGPIOState *s, uint32_t new_data)
++         }
++ 
++         if (s->dir & mask) {
+++            gpio_msg msg;
+++            msg.magick[0] = 0x69;
+++            msg.magick[1] = 0x10;
+++            msg.pin = i;
+++            msg.state = (new_data & mask) ? 1 : 0;
++             /* Output */
++             qemu_set_irq(s->out[i], (new_data & mask) != 0);
+++            /* Send the new value */
+++            mq_send(s->mq,(const char *)&msg,sizeof(msg),0);
+++            /* Update the bit in the dat field */
+++            s->dat &= ~mask;
+++            if ( new_data & mask ) s->dat |= mask;
++         }
++     }
++ 
++-    s->dat = new_data;
+++    qemu_mutex_unlock(&s->dat_lock);
++ }
++ 
++ static void mpc8xxx_gpio_write(void *opaque, hwaddr offset,
++@@ -165,6 +194,7 @@ static void mpc8xxx_gpio_set_irq(void * opaque, int irq, int level)
++ 
++     mask = 0x80000000 >> irq;
++     if ((s->dir & mask) == 0) {
+++        qemu_mutex_lock(&s->dat_lock);
++         uint32_t old_value = s->dat & mask;
++ 
++         s->dat &= ~mask;
++@@ -175,6 +205,7 @@ static void mpc8xxx_gpio_set_irq(void * opaque, int irq, int level)
++             s->ier |= mask;
++         }
++ 
+++        qemu_mutex_unlock(&s->dat_lock);
++         mpc8xxx_gpio_update(s);
++     }
++ }
++@@ -184,6 +215,51 @@ static const MemoryRegionOps mpc8xxx_gpio_ops = {
++     .write = mpc8xxx_gpio_write,
++     .endianness = DEVICE_BIG_ENDIAN,
++ };
+++static void * remote_gpio_thread(void * arg)
+++{
+++    MPC8XXXGPIOState *s = (MPC8XXXGPIOState *)arg;
+++    //Here we receive the data from the queue 
+++    const int MSG_MAX = 8192;
+++    char buf[MSG_MAX];
+++    gpio_msg * mg = (gpio_msg *)&buf;
+++    mqd_t mq = mq_open("/to_qemu",O_CREAT | O_RDONLY,S_IRUSR | S_IWUSR,NULL);
+++    if(mq<0) {
+++        perror("I can't open mq");
+++        exit(1);
+++    }
+++    while(1) {
+++        int res = mq_receive(mq,buf,MSG_MAX,NULL);
+++        if(res<0) {
+++            perror("I can't receive");
+++            exit(1);
+++        }
+++        if(res != sizeof(gpio_msg)) continue;
+++        if((int) mg->magick[0]*256+mg->magick[1] != REMOTE_GPIO_MAGICK) {
+++            printf("Wrong message received");
+++        }
+++        if(mg->pin < 32) {
+++            qemu_mutex_lock_iothread();
+++            mpc8xxx_gpio_set_irq(arg,mg->pin,mg->state);
+++            qemu_mutex_unlock_iothread();
+++        } else if(mg->pin == 255) {
+++            //This is a special "reconnect message" it enforces sending state of all pins
+++            int i;
+++            uint32_t dat = s->dat;
+++            uint32_t mask = 0x80000000;
+++            for(i=0;i<32;i++) {
+++                gpio_msg msg;
+++                msg.magick[0] = 0x69;
+++                msg.magick[1] = 0x10;
+++                msg.pin = i;
+++                msg.state = (dat & mask) ? 1 : 0;
+++                /* Send the new value */
+++                mq_send(s->mq,(const char *)&msg,sizeof(msg),0);
+++                /* Update the bit in the dat field */
+++                mask >>= 1;
+++            }
+++        }
+++    }
+++}
++ 
++ static void mpc8xxx_gpio_initfn(Object *obj)
++ {
++@@ -197,6 +273,10 @@ static void mpc8xxx_gpio_initfn(Object *obj)
++     sysbus_init_irq(sbd, &s->irq);
++     qdev_init_gpio_in(dev, mpc8xxx_gpio_set_irq, 32);
++     qdev_init_gpio_out(dev, s->out, 32);
+++    qemu_mutex_init(&s->dat_lock);
+++    s->mq = mq_open("/from_qemu",O_CREAT | O_WRONLY,S_IRUSR | S_IWUSR,NULL);
+++    qemu_thread_create(&s->thread, "remote_gpio", remote_gpio_thread, s,
+++                       QEMU_THREAD_JOINABLE);
++ }
++ 
++ static void mpc8xxx_gpio_class_init(ObjectClass *klass, void *data)
++diff --git a/include/hw/arm/virt.h b/include/hw/arm/virt.h
++index 0b41083e..7c354e56 100644
++--- a/include/hw/arm/virt.h
+++++ b/include/hw/arm/virt.h
++@@ -66,6 +66,7 @@ enum {
++     VIRT_GIC_REDIST,
++     VIRT_SMMU,
++     VIRT_UART,
+++    VIRT_MPC8XXX,
++     VIRT_MMIO,
++     VIRT_RTC,
++     VIRT_FW_CFG,
