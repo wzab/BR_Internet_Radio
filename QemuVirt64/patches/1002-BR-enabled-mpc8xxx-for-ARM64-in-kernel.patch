@@ -1,0 +1,19 @@
+diff --git a/linux/0002-enable-MPC8XXX-for-ARM64.patch b/linux/0002-enable-MPC8XXX-for-ARM64.patch
+new file mode 100644
+index 0000000..03d94ee
+--- /dev/null
++++ b/linux/0002-enable-MPC8XXX-for-ARM64.patch
+@@ -0,0 +1,13 @@
++diff --git a/drivers/gpio/Kconfig b/drivers/gpio/Kconfig
++index ed51221..2fe1e40 100644
++--- a/drivers/gpio/Kconfig
+++++ b/drivers/gpio/Kconfig
++@@ -351,7 +351,7 @@ config GPIO_MPC5200
++ config GPIO_MPC8XXX
++ 	bool "MPC512x/MPC8xxx/QorIQ GPIO support"
++ 	depends on PPC_MPC512x || PPC_MPC831x || PPC_MPC834x || PPC_MPC837x || \
++-		   FSL_SOC_BOOKE || PPC_86xx || ARCH_LAYERSCAPE || ARM || \
+++		   FSL_SOC_BOOKE || PPC_86xx || ARCH_LAYERSCAPE || ARM || ARM64 || \
++ 		   COMPILE_TEST
++ 	select GPIO_GENERIC
++ 	select IRQ_DOMAIN
