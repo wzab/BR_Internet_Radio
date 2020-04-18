@@ -132,7 +132,7 @@ BR2_XZCAT="xzcat"
 BR2_LZCAT="lzip -d -c"
 BR2_TAR_OPTIONS=""
 BR2_DEFCONFIG="/home/wzab/BR_Vexpr_Radio/buildroot-2020.02/configs/qemu_aarch64_virt_defconfig"
-BR2_DL_DIR="$(HOME)/dl"
+BR2_DL_DIR="$(HOME)/.buildroot-dl"
 BR2_HOST_DIR="$(BASE_DIR)/host"
 
 #
