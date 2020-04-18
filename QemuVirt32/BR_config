@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Buildroot 2020.02-g64b6890-dirty Configuration
+# Buildroot 2020.02-g4f80f58-dirty Configuration
 #
 BR2_HAVE_DOT_CONFIG=y
 BR2_HOST_GCC_AT_LEAST_4_9=y
@@ -2873,7 +2873,7 @@ BR2_PACKAGE_HOST_QEMU_SYSTEM_MODE=y
 # BR2_PACKAGE_HOST_QEMU_LINUX_USER_MODE is not set
 # BR2_PACKAGE_HOST_QEMU_VDE2 is not set
 # BR2_PACKAGE_HOST_QEMU_VIRTFS is not set
-# BR2_PACKAGE_HOST_QEMU_USB is not set
+BR2_PACKAGE_HOST_QEMU_USB=y
 # BR2_PACKAGE_HOST_RASPBERRYPI_USBBOOT is not set
 # BR2_PACKAGE_HOST_RAUC is not set
 # BR2_PACKAGE_HOST_RCW is not set
