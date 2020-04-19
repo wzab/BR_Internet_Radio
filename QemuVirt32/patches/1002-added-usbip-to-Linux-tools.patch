@@ -1,0 +1,92 @@
+diff --git a/package/linux-tools/Config.in b/package/linux-tools/Config.in
+index ceb58c6..5a005e5 100644
+--- a/package/linux-tools/Config.in
++++ b/package/linux-tools/Config.in
+@@ -154,4 +154,25 @@ config BR2_PACKAGE_LINUX_TOOLS_HV_VSS_DAEMON
+ 
+ endif # BR2_PACKAGE_LINUX_TOOLS_HV
+ 
++config BR2_PACKAGE_LINUX_TOOLS_USBIP
++	bool "usbip"
++	depends on BR2_PACKAGE_HAS_UDEV
++	depends on BR2_TOOLCHAIN_HEADERS_AT_LEAST_3_17	# moved out of staging/ dir in kernel 3.17
++	select BR2_PACKAGE_LINUX_TOOLS
++	help
++	  USB/IP protocol allows to pass USB device from server to client over
++	  the network.
++	  You need to activate support for it in your kernel configuration.
++
++	  This (usbip) is the set of userspace tools used to handle connection
++	  and management.
++
++	  You can optionally add hwdata package to your BR config to have
++	  better runtime experience.
++
++	  https://github.com/torvalds/linux/blob/master/tools/usb/usbip/README
++
++comment "usbip needs udev /dev management and a toolchain w/ headers >= 3.17"
++	depends on !BR2_PACKAGE_HAS_UDEV || !BR2_TOOLCHAIN_HEADERS_AT_LEAST_3_17
++
+ endmenu
+diff --git a/package/linux-tools/linux-tool-usbip.mk.in b/package/linux-tools/linux-tool-usbip.mk.in
+new file mode 100644
+index 0000000..0cd9eb5
+--- /dev/null
++++ b/package/linux-tools/linux-tool-usbip.mk.in
+@@ -0,0 +1,56 @@
++################################################################################
++#
++# usbip
++#
++################################################################################
++
++LINUX_TOOLS += usbip
++
++USBIP_DEPENDENCIES = udev
++USBIP_CONF_OPTS = --with-tcp-wrappers=no
++USBIP_CONF_ENV = CFLAGS="$(TARGET_CFLAGS) -Wno-error=address-of-packed-member"
++
++define USBIP_BUILD_CMDS
++	$(Q)if test ! -f $(LINUX_DIR)/tools/usb/usbip/Makefile.am ; then \
++		echo "Your kernel version is too old and does not have the usbip tool." ; \
++		echo "At least kernel 3.17 must be used." ; \
++		exit 1 ; \
++	fi
++
++	cd $(LINUX_DIR)/tools/usb/usbip && PATH=$(BR_PATH) ./autogen.sh
++
++	cd $(LINUX_DIR)/tools/usb/usbip && rm -rf config.cache && \
++		$(TARGET_CONFIGURE_OPTS) \
++		$(TARGET_CONFIGURE_ARGS) \
++		$(USBIP_CONF_ENV) \
++		CONFIG_SITE=/dev/null \
++		./configure \
++			--target=$(GNU_TARGET_NAME) \
++			--host=$(GNU_TARGET_NAME) \
++			--build=$(GNU_HOST_NAME) \
++			--prefix=/usr \
++			--exec-prefix=/usr \
++			--sysconfdir=/etc \
++			--localstatedir=/var \
++			--program-prefix="" \
++			$(QUIET) $(USBIP_CONF_OPTS)
++
++	$(TARGET_MAKE_ENV) $(MAKE) $(USBIP_MAKE_OPTS) \
++		 -C $(LINUX_DIR)/tools/usb/usbip/
++endef
++
++# for libusbip
++define USBIP_INSTALL_STAGING_CMDS
++	$(TARGET_MAKE_ENV) $(MAKE) -C $(LINUX_DIR)/tools/usb/usbip \
++		$(USBIP_MAKE_OPTS) \
++		DESTDIR=$(STAGING_DIR) \
++		install
++endef
++
++define USBIP_INSTALL_TARGET_CMDS
++	$(TARGET_MAKE_ENV) $(MAKE) -C $(LINUX_DIR)/tools/usb/usbip \
++		$(USBIP_MAKE_OPTS) \
++		DESTDIR=$(TARGET_DIR) \
++		install
++endef
++
