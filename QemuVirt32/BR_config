@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Buildroot 2020.02-g4f80f58-dirty Configuration
+# Buildroot 2020.02-g96154d1 Configuration
 #
 BR2_HAVE_DOT_CONFIG=y
 BR2_HOST_GCC_AT_LEAST_4_9=y
@@ -449,6 +449,7 @@ BR2_LINUX_KERNEL_NEEDS_HOST_OPENSSL=y
 #
 # Linux Kernel Tools
 #
+BR2_PACKAGE_LINUX_TOOLS=y
 # BR2_PACKAGE_LINUX_TOOLS_CPUPOWER is not set
 # BR2_PACKAGE_LINUX_TOOLS_GPIO is not set
 # BR2_PACKAGE_LINUX_TOOLS_IIO is not set
@@ -459,6 +460,7 @@ BR2_LINUX_KERNEL_NEEDS_HOST_OPENSSL=y
 # selftests needs BR2_PACKAGE_BUSYBOX_SHOW_OTHERS and a toolchain w/ dynamic library
 #
 # BR2_PACKAGE_LINUX_TOOLS_TMON is not set
+BR2_PACKAGE_LINUX_TOOLS_USBIP=y
 
 #
 # Target packages
