@@ -1,7 +1,13 @@
 #!/bin/bash
 (
   cd buildroot-2020.02
-  output/host/bin/qemu-system-arm -nographic -M vexpress-a9  -cpu cortex-a9 -m 1G -dtb output/images/vexpress-v2p-ca9.dtb -kernel output/images/u-boot -smp 1 -net nic,model=lan9118 -net user  -sd output/images/sdcard.img 
+  output/host/bin/qemu-system-arm -nographic -M vexpress-a9  -cpu cortex-a9 -m 1G -smp 1 \
+  -dtb output/images/vexpress-v2p-ca9.dtb \
+  -kernel output/images/u-boot \
+  -net nic,model=lan9118,netdev=eth0 \
+  -netdev user,id=eth0,hostfwd=tcp::2222-:22,hostfwd=tcp::8888-:8810 \
+  -sd output/images/sdcard.img \
+  -device virtio-rng-device
 )
 
 # 
