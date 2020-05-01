@@ -1,5 +1,5 @@
 #!/bin/bash
 (
   cd GUI
-  python3 gui2.py
+  python2 gui2.py
 )
