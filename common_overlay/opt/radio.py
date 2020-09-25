@@ -110,8 +110,22 @@ def mpc_status():
        mpc.play()
        mpc.close()
        mpc.disconnect()
-       state.vol=status['volume']
+       state.vol='' #status['volume']
     return render_template('status.html',title='Status',state=state)
+
+@app.route("/volume",methods=['GET'])
+def mpc_volume():
+    state=CSet()
+    with mpc_lock:
+       mpc.connect("localhost",6600)
+       state.cur_song=mpc.currentsong().get('name','')
+       status=mpc.status()
+       mpc.play()
+       mpc.close()
+       mpc.disconnect()
+       state.vol='' #status['volume']
+    return render_template('volume.html',title='Volume',state=state)
+
 
 @app.route("/",methods=['GET','POST'])
 def list_radios():
