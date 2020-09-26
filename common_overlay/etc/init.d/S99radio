@@ -6,7 +6,7 @@ test -f /etc/mpd.conf || exit 0
 start() {
 	printf "Starting radio: "
 	cd /opt
-        screen -m -d /usr/bin/python3 radio.py
+        screen -mdS radio /usr/bin/radio.sh
 }
 
 stop() {
