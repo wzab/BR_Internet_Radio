@@ -1,0 +1,103 @@
+<ctempl name="root">
+  <ctempl name="mycfg">
+    <list name="radios">
+        <xradio>
+          <str name="rname">Radio Nowy Świat</str>
+          <str name="url">https://stream.rcs.revma.com/ypqt40u0x1zuv</str>
+          <bool name="play">False</bool>
+          <bool name="up">False</bool>
+          <bool name="down">False</bool>
+          <bool name="remove">False</bool>
+        </xradio>
+        <xradio>
+          <str name="rname">Złote przeboje</str>
+          <str name="url">http://stream10.radioagora.pl/zp_waw_128.mp3</str>
+          <bool name="play">False</bool>
+          <bool name="up">False</bool>
+          <bool name="down">False</bool>
+          <bool name="remove">False</bool>
+        </xradio>
+        <xradio>
+          <str name="rname">Trójka</str>
+          <str name="url">http://mp3.polskieradio.pl:8904/</str>
+          <bool name="play">False</bool>
+          <bool name="up">False</bool>
+          <bool name="down">False</bool>
+          <bool name="remove">False</bool>
+        </xradio>
+        <xradio>
+          <str name="rname">AntyRadio</str>
+          <str name="url">http://antbal-02.cdn.eurozet.pl:8002/;</str>
+          <bool name="play">False</bool>
+          <bool name="up">False</bool>
+          <bool name="down">False</bool>
+          <bool name="remove">False</bool>
+        </xradio>
+        <xradio>
+          <str name="rname">Grechuta</str>
+          <str name="url">http://zetgre-01.cdn.eurozet.pl:8426/;</str>
+          <bool name="play">False</bool>
+          <bool name="up">False</bool>
+          <bool name="down">False</bool>
+          <bool name="remove">False</bool>
+        </xradio>
+        <xradio>
+          <str name="rname">Elektronika</str>
+          <str name="url">http://s01.toksyna.fm:8010/;</str>
+          <bool name="play">False</bool>
+          <bool name="up">False</bool>
+          <bool name="down">False</bool>
+          <bool name="remove">False</bool>
+        </xradio>
+        <xradio>
+          <str name="rname">J.M.Jarre</str>
+          <str name="url">http://stream.klassikradio.de/jmjarre/mp3-192</str>
+          <bool name="play">False</bool>
+          <bool name="up">False</bool>
+          <bool name="down">False</bool>
+          <bool name="remove">False</bool>
+        </xradio>
+        <xradio>
+          <str name="rname">Ballady Wszechczasów</str>
+          <str name="url">http://stream.open.fm/20</str>
+          <bool name="play">False</bool>
+          <bool name="up">False</bool>
+          <bool name="down">False</bool>
+          <bool name="remove">False</bool>
+        </xradio>
+        <xradio>
+          <str name="rname">PR Progressive Rock</str>
+          <str name="url">http://mp3.polskieradio.pl:8062/;</str>
+          <bool name="play">False</bool>
+          <bool name="up">False</bool>
+          <bool name="down">False</bool>
+          <bool name="remove">False</bool>
+        </xradio>
+        <xradio>
+          <str name="rname">RMF Progressive Rock</str>
+          <str name="url">http://195.150.20.242:8000/rmf_rock_progresywny</str>
+          <bool name="play">False</bool>
+          <bool name="up">False</bool>
+          <bool name="down">False</bool>
+          <bool name="remove">False</bool>
+        </xradio>
+        <xradio>
+          <str name="rname">SG Radio</str>
+          <str name="url">https://synthesizergreatest.stream.laut.fm/synthesizergreatest</str>
+          <bool name="play">False</bool>
+          <bool name="up">False</bool>
+          <bool name="down">False</bool>
+          <bool name="remove">False</bool>
+        </xradio>
+    </list>
+    <str name="now_play">0</str>
+    <bool name="stopped">False</bool>
+    <str name="new_name">Radio Nowy Świat</str>
+    <str name="new_url">https://stream.rcs.revma.com/ypqt40u0x1zuv</str>
+    <bool name="add_first">False</bool>
+    <bool name="add_last">False</bool>
+    <bool name="stop">False</bool>
+    <bool name="save">True</bool>
+    <bool name="jump">False</bool>
+  </ctempl>
+</ctempl>
