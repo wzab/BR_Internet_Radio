@@ -3,7 +3,7 @@
     <list name="radios">
         <xradio>
           <str name="rname">Radio Nowy Świat</str>
-          <str name="url">https://stream.rcs.revma.com/ypqt40u0x1zuv</str>
+          <str name="url">https://stream.nowyswiat.online/mp3</str>
           <bool name="play">False</bool>
           <bool name="up">False</bool>
           <bool name="down">False</bool>
@@ -93,7 +93,7 @@
     <str name="now_play">0</str>
     <bool name="stopped">False</bool>
     <str name="new_name">Radio Nowy Świat</str>
-    <str name="new_url">https://stream.rcs.revma.com/ypqt40u0x1zuv</str>
+    <str name="new_url">https://stream.nowyswiat.online/mp3</str>
     <bool name="add_first">False</bool>
     <bool name="add_last">False</bool>
     <bool name="stop">False</bool>
