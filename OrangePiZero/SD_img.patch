@@ -1,0 +1,23 @@
+diff --git a/board/orangepi/orangepi-zero/genimage.cfg b/board/orangepi/orangepi-zero/genimage.cfg
+index 017435f..561a1f8 100644
+--- a/board/orangepi/orangepi-zero/genimage.cfg
++++ b/board/orangepi/orangepi-zero/genimage.cfg
+@@ -8,7 +8,7 @@ image boot.vfat {
+ 			"boot.scr"
+ 		}
+ 	}
+-	size = 10M
++	size = 1024M
+ }
+ 
+ image sdcard.img {
+@@ -28,9 +28,4 @@ image sdcard.img {
+ 		image = "boot.vfat"
+ 	}
+ 
+-	partition rootfs {
+-		partition-type = 0x83
+-		image = "rootfs.ext4"
+-		size = 512M
+-	}
+ }

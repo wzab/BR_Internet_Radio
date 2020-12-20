@@ -3,13 +3,15 @@
 # Sanity checks
 
 start() {
-	printf "Starting WPA SUPPLICANT: "
-	/usr/sbin/wpa_supplicant -B -Dnl80211 -iwlan0 -c/etc/wpa_supplicant.conf
+	printf "Executing user script"
+	mkdir -p /mnt/d
+	mount /dev/mmcblk0p1 /mnt/d
+	source /mnt/d/user.sh
+	umount /mnt/d
 }
 
 stop() {
-       printf "Stoping WPA SUPPLICANT"
-       killall wpa_supplicant
+	printf "Executing user script, nothing to do."
 }
 
 case "$1" in
