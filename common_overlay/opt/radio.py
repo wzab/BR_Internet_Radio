@@ -161,6 +161,9 @@ def list_radios():
              with open(cfg_file,'wt') as fo:
                fo.write(cfg)
                os.system('sync')
+             #Now we copy the configuration to the VFAT partition
+             os.system('/opt/copy_cfg.sh')
+             os.system('sync')
        if state.jump.data:
            return redirect("/edit")
        return redirect("/")
@@ -216,9 +219,9 @@ def update_radios():
              cfg = config.encode('root',0)
              with open(cfg_file,'wt') as fo:
                fo.write(cfg)
-               #Now we copy the configuration to the VFAT partition
-               os.system('/opt/copy_cfg.sh')
-               os.system('sync')
+             #Now we copy the configuration to the VFAT partition
+             os.system('/opt/copy_cfg.sh')
+             os.system('sync')
        if state.add_first.data:
              config.mycfg.radios.insert(0,xradio(state.new_name.data,state.new_url.data))
        if state.add_last.data:
