@@ -12,7 +12,7 @@ from classes import *
 import mpd
 import threading
 
-cfg_file = "/etc/radio.xml"
+cfg_file = "/tmp/radio.xml"
 # https://stackoverflow.com/questions/46653424/flask-wtforms-fieldlist-with-booleanfield
 # escaping based on https://stackoverflow.com/questions/1546717/escaping-strings-for-use-in-xml
 # Connect to the mpd daemon
@@ -216,6 +216,8 @@ def update_radios():
              cfg = config.encode('root',0)
              with open(cfg_file,'wt') as fo:
                fo.write(cfg)
+               #Now we copy the configuration to the VFAT partition
+               os.system('/opt/copy_cfg.sh')
                os.system('sync')
        if state.add_first.data:
              config.mycfg.radios.insert(0,xradio(state.new_name.data,state.new_url.data))

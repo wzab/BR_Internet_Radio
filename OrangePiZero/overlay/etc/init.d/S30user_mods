@@ -1,0 +1,32 @@
+#!/bin/sh
+
+# Sanity checks
+
+start() {
+	printf "Executing user script"
+	mkdir -p /mnt/d
+	mount /dev/mmcblk0p1 /mnt/d
+	source /mnt/d/user.sh
+	umount /mnt/d
+}
+
+stop() {
+	printf "Executing user script, nothing to do."
+}
+
+case "$1" in
+	start)
+		start
+		;;
+	stop)
+		stop
+		;;
+	restart|reload)
+		stop
+		sleep 1
+		start
+		;;
+	*)
+		echo "Usage: $0 {start|stop|restart}"
+		exit 1
+esac
