@@ -1,20 +1,22 @@
-diff --git a/package/qemu/4.2.0/1004-WZab-qemu-patched-for-forced-compilation-of-alsa-and-pa-audio.patch b/package/qemu/4.2.0/1004-WZab-qemu-patched-for-forced-compilation-of-alsa-and-pa-audio.patch
+diff --git a/package/qemu/1002-WZab-qemu-forced-alsa-and-pa.patch b/package/qemu/1002-WZab-qemu-forced-alsa-and-pa.patch
 new file mode 100644
-index 0000000..d1934b3
+index 0000000..f22cebd
 --- /dev/null
-+++ b/package/qemu/4.2.0/1004-WZab-qemu-patched-for-forced-compilation-of-alsa-and-pa-audio.patch
-@@ -0,0 +1,45 @@
++++ b/package/qemu/1002-WZab-qemu-forced-alsa-and-pa.patch
+@@ -0,0 +1,49 @@
 +diff --git a/configure b/configure
-+index 6099be1..5acb989 100755
++index 7cceae4..76eae8c 100755
 +--- a/configure
 ++++ b/configure
-+@@ -3454,36 +3454,12 @@ fi
++@@ -3337,40 +3337,12 @@ fi
 + audio_drv_list=$(echo "$audio_drv_list" | sed -e 's/,/ /g')
 + for drv in $audio_drv_list; do
 +     case $drv in
 +-    alsa | try-alsa)
 +-    if $pkg_config alsa --exists; then
 +-        alsa_libs=$($pkg_config alsa --libs)
++-        alsa_cflags=$($pkg_config alsa --cflags)
++-        alsa=yes
 +-        if test "$drv" = "try-alsa"; then
 +-            audio_drv_list=$(echo "$audio_drv_list" | sed -e 's/try-alsa/alsa/')
 +-        fi
@@ -32,7 +34,9 @@ index 0000000..d1934b3
 + 
 +-    pa | try-pa)
 +-    if $pkg_config libpulse --exists; then
++-        libpulse=yes
 +-        pulse_libs=$($pkg_config libpulse --libs)
++-        pulse_cflags=$($pkg_config libpulse --cflags)
 +-        if test "$drv" = "try-pa"; then
 +-            audio_drv_list=$(echo "$audio_drv_list" | sed -e 's/try-pa/pa/')
 +-        fi
@@ -44,20 +48,23 @@ index 0000000..d1934b3
 +-                "Make sure to have the $drv libs and headers installed."
 +-        fi
 +-    fi
-++    pa)
+++    pa | try-pa)
 ++      pulse_libs="-lpulse"
 +     ;;
 + 
 +     sdl)
 diff --git a/package/qemu/qemu.mk b/package/qemu/qemu.mk
-index b2249ed..8f1f14a 100644
+index b552ea1..29c00db 100644
 --- a/package/qemu/qemu.mk
 +++ b/package/qemu/qemu.mk
-@@ -296,6 +296,7 @@ define HOST_QEMU_CONFIGURE_CMDS
- 	cd $(@D); $(HOST_CONFIGURE_OPTS) CPP="$(HOSTCC) -E" \
- 		./configure \
- 		--target-list="$(HOST_QEMU_TARGETS)" \
-+                --audio-drv-list=alsa,pa,oss \
- 		--prefix="$(HOST_DIR)" \
+@@ -334,8 +334,9 @@ define HOST_QEMU_CONFIGURE_CMDS
  		--interp-prefix=$(STAGING_DIR) \
  		--cc="$(HOSTCC)" \
+ 		--host-cc="$(HOSTCC)" \
++		--audio-drv-list=alsa,pa,oss \
+ 		--extra-cflags="$(HOST_QEMU_CFLAGS)" \
+-		--extra-ldflags="$(HOST_LDFLAGS)" \
++		--extra-ldflags="$(HOST_LDFLAGS) -lrt -lm" \
+ 		--meson=$(HOST_DIR)/bin/meson \
+ 		--ninja=$(HOST_DIR)/bin/ninja \
+ 		--disable-bzip2 \
