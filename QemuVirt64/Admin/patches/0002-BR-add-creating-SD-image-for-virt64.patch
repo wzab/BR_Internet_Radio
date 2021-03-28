@@ -1,0 +1,67 @@
+diff --git a/board/qemu/aarch64-virt/genimage-aarch64-virt.cfg b/board/qemu/aarch64-virt/genimage-aarch64-virt.cfg
+new file mode 100644
+index 0000000..952586b
+--- /dev/null
++++ b/board/qemu/aarch64-virt/genimage-aarch64-virt.cfg
+@@ -0,0 +1,28 @@
++image boot.vfat {
++  vfat {
++    files = {
++      "u-boot.bin",
++      "Image",
++      "../../../user_img/boot.scr",
++      "../../../user_img/Image_user",
++    }
++  }
++  size = 128M
++}
++
++image sdcard.img {
++  hdimage {
++  }
++
++  partition boot {
++    partition-type = 0xC
++    bootable = "true"
++    image = "boot.vfat"
++    offset = 1M
++  }
++
++  partition rootfs {
++    partition-type = 0x83
++    image = "../../../user_img/rootfs.ext4"
++  }
++}
+diff --git a/board/qemu/aarch64-virt/post-image.sh b/board/qemu/aarch64-virt/post-image.sh
+new file mode 100755
+index 0000000..6cad20f
+--- /dev/null
++++ b/board/qemu/aarch64-virt/post-image.sh
+@@ -0,0 +1,27 @@
++#!/bin/bash
++
++set -e
++
++BOARD_DIR="$(dirname $0)"
++BOARD_NAME="$(basename ${BOARD_DIR})"
++GENIMAGE_CFG="${BOARD_DIR}/genimage-${BOARD_NAME}.cfg"
++GENIMAGE_TMP="${BUILD_DIR}/genimage.tmp"
++
++# Pass an empty rootpath. genimage makes a full copy of the given rootpath to
++# ${GENIMAGE_TMP}/root so passing TARGET_DIR would be a waste of time and disk
++# space. We don't rely on genimage to build the rootfs image, just to insert a
++# pre-built one in the disk image.
++
++trap 'rm -rf "${ROOTPATH_TMP}"' EXIT
++ROOTPATH_TMP="$(mktemp -d)"
++
++rm -rf "${GENIMAGE_TMP}"
++
++genimage \
++	--rootpath "${ROOTPATH_TMP}"   \
++	--tmppath "${GENIMAGE_TMP}"    \
++	--inputpath "${BINARIES_DIR}"  \
++	--outputpath "${BINARIES_DIR}" \
++	--config "${GENIMAGE_CFG}"
++
++exit $?
