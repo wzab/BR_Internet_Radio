@@ -3,7 +3,7 @@ new file mode 100644
 index 0000000..706b19d
 --- /dev/null
 +++ b/package/qemu/1001-WZab-host-qemu-mpc8xxx-patched-for-GUI-virt-added.patch
-@@ -0,0 +1,245 @@
+@@ -0,0 +1,246 @@
 +diff --git a/hw/arm/virt.c b/hw/arm/virt.c
 +index 27dbeb5..1e5da61 100644
 +--- a/hw/arm/virt.c
@@ -152,7 +152,8 @@ index 0000000..706b19d
 +         }
 +     }
 + 
-+     s->dat = new_data;
++-    s->dat = new_data;
+++     //s->dat = new_data;
 ++    qemu_mutex_unlock(&s->dat_lock);
 + }
 + 
