@@ -1,60 +1,41 @@
-diff --git a/package/qemu/1002-WZab-qemu-forced-alsa-and-pa.patch b/package/qemu/1002-WZab-qemu-forced-alsa-and-pa.patch
+diff --git a/package/qemu/1002-WZ-configure-with-system-alsa-and-pa.patch b/package/qemu/1002-WZ-configure-with-system-alsa-and-pa.patch
 new file mode 100644
-index 0000000..f22cebd
+index 0000000..f2ff952
 --- /dev/null
-+++ b/package/qemu/1002-WZab-qemu-forced-alsa-and-pa.patch
-@@ -0,0 +1,49 @@
++++ b/package/qemu/1002-WZ-configure-with-system-alsa-and-pa.patch
+@@ -0,0 +1,30 @@
 +diff --git a/configure b/configure
-+index 7cceae4..76eae8c 100755
++index 7cceae4..1bd36b7 100755
 +--- a/configure
 ++++ b/configure
-+@@ -3337,40 +3337,12 @@ fi
++@@ -3333,6 +3333,17 @@ fi
++ 
++ ##########################################
++ # Sound support libraries probe
+++printenv | grep PKG_CONF
+++tmp_pkg_config() {
+++  (
+++    unset PKG_CONFIG
+++    unset PKG_CONFIG_LIBDIR
+++    /usr/bin/pkg-config "$@"
+++  )
+++}
+++
+++old_pkg_config=$pkg_config
+++pkg_config="tmp_pkg_config"
++ 
 + audio_drv_list=$(echo "$audio_drv_list" | sed -e 's/,/ /g')
 + for drv in $audio_drv_list; do
-+     case $drv in
-+-    alsa | try-alsa)
-+-    if $pkg_config alsa --exists; then
-+-        alsa_libs=$($pkg_config alsa --libs)
-+-        alsa_cflags=$($pkg_config alsa --cflags)
-+-        alsa=yes
-+-        if test "$drv" = "try-alsa"; then
-+-            audio_drv_list=$(echo "$audio_drv_list" | sed -e 's/try-alsa/alsa/')
-+-        fi
-+-    else
-+-        if test "$drv" = "try-alsa"; then
-+-            audio_drv_list=$(echo "$audio_drv_list" | sed -e 's/try-alsa//')
-+-        else
-+-            error_exit "$drv check failed" \
-+-                "Make sure to have the $drv libs and headers installed."
-+-        fi
-+-    fi
-++    alsa)
-++      alsa_libs="-lasound"
++@@ -3425,6 +3436,7 @@ for drv in $audio_drv_list; do
 +     ;;
++     esac
++ done
+++pkg_config=$old_pkg_config
 + 
-+-    pa | try-pa)
-+-    if $pkg_config libpulse --exists; then
-+-        libpulse=yes
-+-        pulse_libs=$($pkg_config libpulse --libs)
-+-        pulse_cflags=$($pkg_config libpulse --cflags)
-+-        if test "$drv" = "try-pa"; then
-+-            audio_drv_list=$(echo "$audio_drv_list" | sed -e 's/try-pa/pa/')
-+-        fi
-+-    else
-+-        if test "$drv" = "try-pa"; then
-+-            audio_drv_list=$(echo "$audio_drv_list" | sed -e 's/try-pa//')
-+-        else
-+-            error_exit "$drv check failed" \
-+-                "Make sure to have the $drv libs and headers installed."
-+-        fi
-+-    fi
-++    pa | try-pa)
-++      pulse_libs="-lpulse"
-+     ;;
-+ 
-+     sdl)
++ ##########################################
++ # BrlAPI probe
 diff --git a/package/qemu/qemu.mk b/package/qemu/qemu.mk
-index b552ea1..29c00db 100644
+index b552ea1..5c40384 100644
 --- a/package/qemu/qemu.mk
 +++ b/package/qemu/qemu.mk
 @@ -334,8 +334,9 @@ define HOST_QEMU_CONFIGURE_CMDS
