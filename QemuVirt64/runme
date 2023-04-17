@@ -1,7 +1,7 @@
 #!/bin/bash
 (
- cd buildroot-2020.02
- qemu-system-aarch64 -M virt -cpu cortex-a53 -nographic -smp 1 -kernel output/images/Image -append "rootwait root=/dev/vda console=ttyAMA0" -netdev user,id=eth0,hostfwd=tcp::8888-:8810,hostfwd=tcp::2222-:22 -device virtio-net-device,netdev=eth0 -drive file=output/images/rootfs.ext2,if=none,format=raw,id=hd0 -device virtio-blk-device,drive=hd0 -soundhw hda \
+ cd buildroot-2023.02
+ qemu-system-aarch64 -M virt -cpu cortex-a53 -nographic -smp 1 -kernel output/images/Image -append "rootwait root=/dev/vda console=ttyAMA0" -netdev user,id=eth0,hostfwd=tcp::8888-:8810,hostfwd=tcp::2222-:22 -device virtio-net-device,netdev=eth0 -drive file=output/images/rootfs.ext2,if=none,format=raw,id=hd0 -device virtio-blk-device,drive=hd0 -audio pa,model=hda \
  -device virtio-rng-device
 )
 
